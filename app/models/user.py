@@ -15,7 +15,7 @@ from sqlalchemy import (
     String,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 
@@ -62,7 +62,6 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-        onupdate=func.now(),
         nullable=False,
     )
 
@@ -71,13 +70,32 @@ class User(Base):
         nullable=True,
     )
 
+  
+    # --- The following sections are commented out until their respective models are created ---
+    # # One-to-One (UserProfile)
+    # profile: Mapped["UserProfile | None"] = relationship(
+    #     "UserProfile",
+    #     back_populates="user",
+    #     uselist=False,
+    #     cascade="all, delete-orphan",
+    #     passive_deletes=True,
+    # )
+
+    # # One-to-Many (Recipe)
+    # recipes: Mapped[list["Recipe"]] = relationship(
+    #     "Recipe",
+    #     back_populates="user",
+    #     passive_deletes="all",
+    # )
+
+    # # One-to-Many (Favorite)
+    # favorites: Mapped[list["Favorite"]] = relationship(
+    #     "Favorite",
+    #     back_populates="user",
+    #     cascade="all, delete-orphan",
+    #     passive_deletes=True,
+    # )
+
     def __repr__(self):
         """Return a developer-friendly representation of the user."""
-        return f"User(id={self.id}, phone_number={self.phone_number})"
-
-
-
-
-
-
-    
+        return f"User(id={self.id})"
