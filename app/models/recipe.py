@@ -121,10 +121,9 @@ class Recipe(Base):
     #     passive_deletes=True,
     # )
 
-    # # One-to-Many (Recipe can be saved in many favorites)
-    # favorites: Mapped[list["Favorite"]] = relationship(
-    #     "Favorite",
-    #     back_populates="recipe",
-    #     cascade="all, delete-orphan",
-    #     passive_deletes=True,
-    # )
+    favorites: Mapped[list["Favorite"]] = relationship(
+        "Favorite",
+        back_populates="recipe",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )

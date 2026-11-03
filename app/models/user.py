@@ -88,13 +88,12 @@ class User(Base):
     #     passive_deletes="all",
     # )
 
-    # # One-to-Many (Favorite)
-    # favorites: Mapped[list["Favorite"]] = relationship(
-    #     "Favorite",
-    #     back_populates="user",
-    #     cascade="all, delete-orphan",
-    #     passive_deletes=True,
-    # )
+    favorites: Mapped[list["Favorite"]] = relationship(
+        "Favorite",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     def __repr__(self):
         """Return a developer-friendly representation of the user."""
