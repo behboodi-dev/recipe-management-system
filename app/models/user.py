@@ -72,14 +72,13 @@ class User(Base):
 
   
     # --- The following sections are commented out until their respective models are created ---
-    # # One-to-One (UserProfile)
-    # profile: Mapped["UserProfile | None"] = relationship(
-    #     "UserProfile",
-    #     back_populates="user",
-    #     uselist=False,
-    #     cascade="all, delete-orphan",
-    #     passive_deletes=True,
-    # )
+    profile: Mapped["UserProfile | None"] = relationship(
+        "UserProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     # # One-to-Many (Recipe)
     # recipes: Mapped[list["Recipe"]] = relationship(
