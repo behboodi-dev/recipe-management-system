@@ -46,14 +46,12 @@ database_url = URL.create(
 )
 
 
-# Create database engine
 engine = create_engine(
     database_url,
     pool_pre_ping=True,
 )
 
 
-# Create session factory
 SessionLocal = sessionmaker(
     bind=engine,
     autoflush=False,
