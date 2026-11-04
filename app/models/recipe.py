@@ -87,16 +87,16 @@ class Recipe(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    
+   
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="recipes",
+    )
 
     # --- Temporarily commented out until related models are implemented ---
-    
-    # # Many-to-One (Recipe belongs to one User)
-    # user: Mapped["User"] = relationship(
-    #     "User",
-    #     back_populates="recipes",
-    # )
 
-    # # One-to-Many (Recipe has many steps)
+   
     # steps: Mapped[list["RecipeStep"]] = relationship(
     #     "RecipeStep",
     #     back_populates="recipe",
@@ -105,7 +105,6 @@ class Recipe(Base):
     #     order_by="RecipeStep.step_number",
     # )
 
-    # # One-to-Many (Recipe has many ingredients)
     # ingredients: Mapped[list["RecipeIngredient"]] = relationship(
     #     "RecipeIngredient",
     #     back_populates="recipe",
@@ -113,7 +112,6 @@ class Recipe(Base):
     #     passive_deletes=True,
     # )
 
-    # # One-to-Many (Recipe belongs to many categories)
     # categories: Mapped[list["RecipeCategory"]] = relationship(
     #     "RecipeCategory",
     #     back_populates="recipe",

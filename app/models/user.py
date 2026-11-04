@@ -80,12 +80,11 @@ class User(Base):
         passive_deletes=True,
     )
 
-    # # One-to-Many (Recipe)
-    # recipes: Mapped[list["Recipe"]] = relationship(
-    #     "Recipe",
-    #     back_populates="user",
-    #     passive_deletes="all",
-    # )
+    recipes: Mapped[list["Recipe"]] = relationship(
+        "Recipe",
+        back_populates="user",
+        passive_deletes="all",
+    )
 
     favorites: Mapped[list["Favorite"]] = relationship(
         "Favorite",
