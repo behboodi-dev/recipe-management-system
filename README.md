@@ -294,4 +294,3 @@ For more information about the database design, functional requirements, and imp
 
 - `ANALYSIS.md` – Detailed system analysis and requirements.
 - `sql/schema.sql` – PostgreSQL database schema.
-- `docs/erd.png` – Entity-Relationship Diagram.
