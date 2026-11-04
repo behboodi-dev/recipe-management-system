@@ -140,7 +140,7 @@ DATABASE_USER=postgres
 DATABASE_PASSWORD=your_password
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
-DATABASE_NAME=recipe_db
+DATABASE_NAME=your_database_name
 ```
 
 Replace the example credentials with your actual PostgreSQL configuration.
@@ -156,15 +156,15 @@ recipe-management-system/
 │
 ├── app/
 │   ├── __init__.py
-│   ├── database.py             # Database engine and SessionLocal
+│   ├── database.py             
 │   │
-│   ├── crud/                   # CRUD operations
+│   ├── crud/                   
 │   │   ├── __init__.py
 │   │   ├── user.py
 │   │   ├── recipe.py
 │   │   └── favorite.py
 │   │
-│   └── models/                 # SQLAlchemy models
+│   └── models/                
 │       ├── __init__.py
 │       ├── base.py
 │       ├── user.py
@@ -172,7 +172,7 @@ recipe-management-system/
 │       ├── recipe.py
 │       └── favorite.py
 │
-├── tests/                      # Pytest automated tests
+├── tests/                     
 │   ├── __init__.py
 │   ├── test_user_model.py
 │   ├── test_user_crud.py
@@ -181,10 +181,10 @@ recipe-management-system/
 │   └── ...
 │
 ├── sql/
-│   └── schema.sql              # PostgreSQL database schema
+│   └── schema.sql              
 │
 ├── docs/
-│   ├── erd.png                 # Entity-Relationship Diagram
+│   | 
 │   └── screenshots/
 │
 ├── .env.example
