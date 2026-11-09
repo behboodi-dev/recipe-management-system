@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import engine
 from app.models import User, Recipe
 
-from app.crud.recipe import (
+from app.services.recipe import (
     create_recipe,
     get_recipe,
     get_recipes,

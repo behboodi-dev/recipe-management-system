@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import engine
 from app.models import User, Recipe, UserProfile, Favorite
 
-from app.crud.user import (
+from app.services.user import (
     create_user,
     get_user,
     get_users,

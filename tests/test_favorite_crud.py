@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import engine
 from app.models import User, Recipe, Favorite
 
-from app.crud.favorite import (
+from app.services.favorite import (
     add_favorite,
     get_favorite,
     get_user_favorites,
