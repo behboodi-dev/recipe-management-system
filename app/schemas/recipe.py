@@ -10,9 +10,10 @@ from pydantic import BaseModel, ConfigDict, Field
 class RecipeCreate(BaseModel):
     """
     Schema for validating data when creating a new recipe.
-    
+
     Enforces that preparation/cooking times are >= 0 and servings > 0.
     """
+
     title: str = Field(
         min_length=1,
         max_length=255,
@@ -35,12 +36,43 @@ class RecipeCreate(BaseModel):
     image_url: str | None = None
 
 
+class RecipeUpdate(BaseModel):
+    """
+    Schema for validating data when updating an existing recipe.
+
+    All fields are required for a full update (PUT method).
+    Enforces that preparation/cooking times are >= 0 and servings > 0.
+    """
+
+    title: str = Field(
+        min_length=1,
+        max_length=255,
+    )
+
+    description: str | None
+
+    prep_time_minutes: int = Field(
+        ge=0,
+    )
+
+    cook_time_minutes: int = Field(
+        ge=0,
+    )
+
+    servings: int = Field(
+        gt=0,
+    )
+
+    image_url: str | None
+
+
 class RecipeRead(BaseModel):
     """
     Schema for returning recipe data in API responses.
-    
+
     Includes database-generated fields (id, user_id, timestamps).
     """
+
     id: int
     user_id: int
 
