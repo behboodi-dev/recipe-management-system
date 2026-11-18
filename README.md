@@ -1,6 +1,8 @@
 # Recipe Management System
 
-A full-stack Recipe Management System built with **Python**, **PostgreSQL**, and **SQLAlchemy**. This project includes database design, CRUD operations, and automated testing.
+A Recipe Management System built with **Python**, **FastAPI**, **PostgreSQL**, and **SQLAlchemy ORM**.
+
+This project focuses on relational database design, data integrity, backend development, and RESTful API implementation. It provides a structured architecture that separates API routes, business logic, database models, and data validation.
 
 ---
 
@@ -8,94 +10,227 @@ A full-stack Recipe Management System built with **Python**, **PostgreSQL**, and
 
 - [Project Overview](#project-overview)
 - [Features](#features)
+- [Technology Stack](#technology-stack)
 - [Database Design](#database-design)
-- [Design Assumptions & Decisions](#design-assumptions--decisions)
-- [Installation & Setup](#installation--setup)
+- [Design Decisions](#design-decisions)
 - [Project Structure](#project-structure)
+- [Installation and Setup](#installation-and-setup)
+- [Environment Configuration](#environment-configuration)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [API Endpoints](#api-endpoints)
 - [Testing](#testing)
-- [Usage](#usage)
+- [Database Connection Test](#database-connection-test)
+- [Documentation](#documentation)
+- [Security Notes](#security-notes)
+- [License](#license)
 
 ---
 
 ## Project Overview
 
-The Recipe Management System allows users to:
+The Recipe Management System is designed to help users create, manage, organize, and save cooking recipes.
 
-- Create and manage user profiles.
-- Add and manage cooking recipes, including preparation time, cooking time, and servings.
-- Organize recipes into categories.
-- Record ingredients with their exact quantities and measurement units.
-- Save recipes to a personalized favorites list.
+The system's database and backend architecture support:
 
-The project is developed in two main phases:
+- User accounts and optional user profiles.
+- Recipe creation and management.
+- Preparation time, cooking time, and serving information.
+- Ordered cooking instructions.
+- Ingredients with quantities and measurement units.
+- Recipe categorization.
+- Personalized favorite recipes.
 
-1. **Database Design:** A normalized PostgreSQL database schema (`sql/schema.sql`).
-2. **Python Implementation:** SQLAlchemy models, CRUD operations, and automated tests.
+The project is developed in three main phases:
+
+1. **Database Design:** Designing a normalized PostgreSQL database schema.
+2. **Python Implementation:** Implementing SQLAlchemy ORM models, database connectivity, and service-layer operations.
+3. **API Development:** Building RESTful API endpoints using FastAPI.
 
 ---
 
 ## Features
 
--  **PostgreSQL:** PostgreSQL is used as the database management system (DBMS).
--  **10 Normalized Tables:** Includes users, profiles, recipes, steps, ingredients, units, categories, and junction tables.
--  **Data Integrity:** Foreign keys, `CHECK` constraints, and composite primary keys ensure data consistency.
--  **Soft-Delete Policy:** User accounts are anonymized and soft-deleted while preserving recipe ownership.
--  **Case-Insensitive Uniqueness:** Unique indexes on `LOWER(username)` and `LOWER(email)` prevent duplicate usernames and email addresses regardless of letter case.
--  **Automatic Timestamps:** `updated_at` columns are automatically maintained using database triggers.
--  **CRUD Operations:** Create, Read, Update, and Delete operations are implemented for Users, Recipes, and Favorites.
--  **Automated Testing:** Pytest-based tests cover CRUD operations and database constraints.
-- **ERD & SQL Schema:** Both the visual Entity-Relationship Diagram and the SQL schema are included in the repository.
+- **PostgreSQL:** Relational database management system.
+- **10 Database Tables:** A normalized schema covering users, profiles, recipes, ingredients, units, categories, and related tables.
+- **SQLAlchemy ORM:** Mapping database tables to Python classes.
+- **Data Integrity:** Foreign keys, check constraints, unique indexes, and composite primary keys.
+- **Soft Deletion:** User accounts are designed to be soft-deleted to preserve recipe ownership and referential integrity.
+- **Case-Insensitive Uniqueness:** Unique indexes prevent duplicate values regardless of letter case for supported fields.
+- **Automatic Timestamps:** Database triggers maintain `updated_at` values for supported tables.
+- **Pydantic Schemas:** Request validation and response serialization.
+- **Service Layer:** Business logic is separated from API route handlers.
+- **FastAPI:** API development with automatically generated interactive documentation.
+- **Automated Testing:** Tests for supported models, database operations, and data integrity rules.
+
+---
+
+## Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Python | Backend programming language |
+| FastAPI | REST API framework |
+| PostgreSQL | Relational database |
+| SQLAlchemy | ORM and database interaction |
+| Psycopg | PostgreSQL database driver |
+| Pydantic | Data validation and serialization |
+| python-dotenv | Environment variable management |
+| Uvicorn | ASGI application server |
+| Pytest | Automated testing |
 
 ---
 
 ## Database Design
 
-The database consists of 10 tables divided into core entities and junction tables:
+The database consists of 10 tables:
 
-1. **`users`**: Stores core account information, including phone numbers, timestamps, and soft-delete information.
+1. **`users`**: Stores core account information, phone verification data, timestamps, and soft-deletion information.
 2. **`user_profiles`**: Stores optional profile information, such as usernames, email addresses, bios, and avatar URLs.
-3. **`recipes`**: Stores recipe information, including the owner, title, preparation time, cooking time, servings, and image URL.
-4. **`recipe_steps`**: Stores ordered cooking instructions for each recipe.
-5. **`ingredients`**: Stores a master list of distinct ingredients.
-6. **`units`**: Stores standardized measurement units, such as grams (g), milliliters (ml), and teaspoons (tsp).
-7. **`categories`**: Stores shared categories used to organize recipes.
-8. **`recipe_ingredients`**: Resolves the many-to-many relationship between recipes and ingredients, including quantity and measurement unit.
-9. **`recipe_categories`**: Resolves the many-to-many relationship between recipes and categories.
-10. **`favorites`**: Resolves the many-to-many relationship between users and their favorite recipes.
+3. **`recipes`**: Stores recipe information, including ownership, title, description, preparation time, cooking time, servings, and image URL.
+4. **`recipe_steps`**: Stores ordered cooking instructions for recipes.
+5. **`ingredients`**: Stores the master list of ingredients.
+6. **`units`**: Stores standardized measurement units, such as grams, milliliters, and teaspoons.
+7. **`categories`**: Stores recipe categories.
+8. **`recipe_ingredients`**: Connects recipes to ingredients and stores quantities and measurement units.
+9. **`recipe_categories`**: Connects recipes to multiple categories.
+10. **`favorites`**: Stores the relationship between users and their favorite recipes.
+
+The database schema is defined in:
+
+`sql/schema.sql`
 
 ---
 
-## Design Assumptions & Decisions
+## Design Decisions
 
-- **PostgreSQL Selection:** PostgreSQL was selected for its robust `TIMESTAMPTZ` support, precise `NUMERIC` data types, and advanced constraint capabilities.
-- **Soft Deletion for Users:** When a user deletes their account, the user record is retained with `deleted_at` set. Personal information, such as phone numbers and profile data, is anonymized or removed. However, the user's recipes are preserved to maintain referential integrity.
-- **Case-Insensitive Uniqueness:** Usernames and email addresses are checked case-insensitively using unique indexes on `LOWER(username)` and `LOWER(email)` to prevent duplicate accounts and impersonation.
-- **Image Storage:** Only image URLs or storage paths are stored in the database. Actual image files are managed externally.
-- **Ingredient Normalization:** Ingredient names are unique. If an ingredient is used multiple times in a recipe, its quantities must be combined.
-- **Automatic Timestamps:** A PostgreSQL trigger (`set_updated_at`) automatically updates the `updated_at` column whenever a record is modified.
+### PostgreSQL
 
-> For a detailed breakdown of functional requirements, business rules, and database constraints, please refer to the `ANALYSIS.md` file in this repository.
+PostgreSQL was selected because of its support for relational integrity, advanced constraints, transactions, and timezone-aware timestamps.
+
+### User Soft Deletion
+
+User accounts are designed to be soft-deleted rather than physically removed.
+
+This approach preserves recipe ownership and referential integrity while allowing account-related information to be handled according to the project's business rules.
+
+### Case-Insensitive Uniqueness
+
+Case-insensitive unique indexes are used for supported fields, such as usernames, email addresses, and ingredient names, as defined in the database schema.
+
+### Image Storage
+
+Actual image files are stored outside the database. The database stores only image URLs or storage paths.
+
+### Ingredient Normalization
+
+Ingredients are stored separately from recipes. The `recipe_ingredients` table connects recipes to ingredients and stores their quantities and measurement units.
+
+### Automatic Timestamps
+
+Database triggers maintain `updated_at` values for supported tables when records are modified.
+
+For additional details about functional requirements, business rules, and database constraints, see `ANALYSIS.md`.
 
 ---
 
-## Installation & Setup
+## Project Structure
 
-To run this project locally, you need **Python 3.10+** and **PostgreSQL** installed.
+The project follows a layered architecture to separate API handling, business logic, data validation, and database operations.
+
+```text
+recipe_management/
+│
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── database.py
+│   │
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── dependencies.py
+│   │   └── routes/
+│   │       ├── __init__.py
+│   │       └── recipes.py
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── user.py
+│   │   ├── user_profile.py
+│   │   ├── recipe.py
+│   │   └── favorite.py
+│   │
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   ├── recipe.py
+│   │   └── favorite.py
+│   │
+│   └── services/
+│       ├── __init__.py
+│       ├── user.py
+│       ├── recipe.py
+│       ├── recipe_service.py
+│       └── favorite.py
+│
+├── docs/
+│   └── screenshots/
+│
+├── sql/
+│   └── schema.sql
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_user_model.py
+│   ├── test_user_crud.py
+│   ├── test_user_profile_model.py
+│   ├── test_recipe_model.py
+│   ├── test_recipe_crud.py
+│   ├── test_favorite_model.py
+│   └── test_favorite_crud.py
+│
+├── .env.example
+├── .gitignore
+├── ANALYSIS.md
+├── README.md
+├── requirements.txt
+└── TEST_RESULTS.md
+```
+
+**Note:** The `.env` file contains local environment variables and must not be committed to Git. The `.venv/` directory contains the local Python virtual environment and is also excluded from version control.
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+
+Make sure the following software is installed:
+
+- Python 3.10 or later.
+- PostgreSQL.
+- Git.
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/recipe-management-system.git
-cd recipe-management-system
+git clone https://github.com/behboodi-dev/recipe-management-system.git
+
+cd recipe_management
 ```
 
-### 2. Create and Activate a Virtual Environment
+Replace `YOUR_USERNAME` with your actual GitHub username and use the repository's actual URL.
+
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv .venv
 ```
 
-**Windows (PowerShell):**
+### 3. Activate the Virtual Environment
+
+**Windows PowerShell:**
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
@@ -107,171 +242,142 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install Dependencies
+### 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Create the Database
+### 5. Create the PostgreSQL Database
+
+Using the PostgreSQL command line:
 
 ```bash
 createdb recipe_db
 ```
 
-Alternatively, you can create the database using PostgreSQL tools such as pgAdmin.
+Alternatively, create a database named `recipe_db` using pgAdmin.
 
-### 5. Run the Database Schema
+### 6. Apply the Database Schema
+
+Run the SQL schema file:
 
 ```bash
 psql -d recipe_db -f sql/schema.sql
 ```
 
-This command creates the database tables, constraints, indexes, and triggers defined in the SQL schema.
+Make sure PostgreSQL is running and the database exists before executing this command.
 
-### 6. Configure Environment Variables
+---
 
-Create a `.env` file in the project root directory based on `.env.example`.
+## Environment Configuration
 
-Example:
+Create a `.env` file in the project root based on `.env.example`.
+
+Example configuration:
 
 ```env
 DATABASE_USER=postgres
 DATABASE_PASSWORD=your_password
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
-DATABASE_NAME=your_database_name
+DATABASE_NAME=recipe_db
 ```
 
-Replace the example credentials with your actual PostgreSQL configuration.
+Update the values according to your local PostgreSQL configuration.
 
-**Important:** Never commit your `.env` file or expose your database credentials in a public repository.
+**Security Note:** Never commit `.env` to Git or expose database credentials in a public repository.
+
+The `.gitignore` file should exclude:
+
+```gitignore
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+```
 
 ---
 
-## Project Structure
+## Running the Application
+
+Make sure your virtual environment is activated and the database configuration is correct.
+
+Start the development server:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+The API will be available at:
 
 ```text
-recipe-management-system/
-│
-├── app/
-│   ├── __init__.py
-│   ├── database.py             
-│   │
-│   ├── crud/                   
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── recipe.py
-│   │   └── favorite.py
-│   │
-│   └── models/                
-│       ├── __init__.py
-│       ├── base.py
-│       ├── user.py
-│       ├── user_profile.py
-│       ├── recipe.py
-│       └── favorite.py
-│
-├── tests/                     
-│   ├── __init__.py
-│   ├── test_user_model.py
-│   ├── test_user_crud.py
-│   ├── test_recipe_crud.py
-│   ├── test_favorite_crud.py
-│   └── ...
-│
-├── sql/
-│   └── schema.sql              
-│
-├── docs/
-│   | 
-│   └── screenshots/
-│
-├── .env.example
-├── .gitignore
-├── ANALYSIS.md
-├── README.md
-└── requirements.txt
+http://127.0.0.1:8000
 ```
+
+---
+
+## API Documentation
+
+FastAPI automatically generates interactive API documentation.
+
+Once the server is running, open:
+
+- **Swagger UI:** http://127.0.0.1:8000/docs
+- **ReDoc:** http://127.0.0.1:8000/redoc
+
+Swagger UI allows you to inspect available endpoints, provide request data, execute API calls, and review responses.
+
+---
+
+## API Endpoints
+
+Recipe API routes are defined in:
+
+`app/api/routes/recipes.py`
+
+The available endpoints should be checked in the running application's Swagger UI at `/docs`.
+
+The Recipe API is intended to support operations such as:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/recipes/` | Retrieve the recipe list |
+| GET | `/recipes/{recipe_id}` | Retrieve a recipe by ID |
+| POST | `/recipes/` | Create a new recipe |
+| PUT | `/recipes/{recipe_id}` | Update an existing recipe |
+| DELETE | `/recipes/{recipe_id}` | Delete a recipe |
+
+The table describes the intended Recipe API operations. Confirm that each operation is registered and working in Swagger UI before treating it as implemented.
 
 ---
 
 ## Testing
 
-This project uses **pytest** for automated testing.
+The project uses Pytest for automated testing.
 
-The tests cover CRUD operations, model structure, database connectivity, and data integrity constraints.
-
-### Run All Tests
+To run the available test suite:
 
 ```bash
 pytest tests/ -v
 ```
 
-### Run Specific Tests
-
-**User CRUD Tests:**
+To run a specific test module:
 
 ```bash
-pytest tests/test_user_crud.py -v
+pytest tests/test_user_model.py -v
 ```
 
-**Recipe CRUD Tests:**
+Other test modules can be executed individually.
 
-```bash
-pytest tests/test_recipe_crud.py -v
-```
+The test results and previously performed checks are documented in:
 
-**Favorite CRUD Tests:**
-
-```bash
-pytest tests/test_favorite_crud.py -v
-```
+`TEST_RESULTS.md`
 
 ---
 
-## Usage
-
-### Basic CRUD Example (Python)
-
-The following example demonstrates how to create a user, add a recipe, and retrieve it from the database.
-
-```python
-from app.database import SessionLocal
-from app.crud.user import create_user, get_user
-from app.crud.recipe import create_recipe, get_recipe
-
-
-# Create a database session
-with SessionLocal() as session:
-
-    # Create a user
-    user = create_user(
-        session,
-        phone_number="+989121234567"
-    )
-
-    print(f"User created: {user.id}")
-
-    # Create a recipe
-    recipe = create_recipe(
-        session,
-        user_id=user.id,
-        title="My First Recipe",
-        prep_time_minutes=10,
-        cook_time_minutes=20,
-        servings=2,
-    )
-
-    print(f"Recipe created: {recipe.id}")
-
-    # Retrieve the recipe
-    found = get_recipe(session, recipe.id)
-
-    print(f"Found recipe: {found.title}")
-```
-
-### Test the Database Connection
+## Database Connection Test
 
 To verify that the application can connect to PostgreSQL, run:
 
@@ -286,11 +392,30 @@ Database connection successful!
 Test result: 1
 ```
 
+This test verifies that the application can establish a database connection and execute a simple SQL query.
+
 ---
 
 ## Documentation
 
-For more information about the database design, functional requirements, and implementation decisions, see:
+Additional project documentation:
 
-- `ANALYSIS.md` – Detailed system analysis and requirements.
-- `sql/schema.sql` – PostgreSQL database schema.
+- **`ANALYSIS.md`** — Functional requirements, business rules, and system analysis.
+- **`sql/schema.sql`** — PostgreSQL database schema and constraints.
+- **`docs/screenshots/`** — Database and project screenshots.
+- **`TEST_RESULTS.md`** — Results of database and application tests.
+
+---
+
+## Security Notes
+
+- Database credentials must be stored in `.env`, not directly in source code.
+- The `.env` file must be excluded from Git.
+- Any temporary user-identification mechanism used during development must be replaced with proper authentication before production deployment.
+- Database constraints and ownership checks should be enforced by the backend and database, not only by client-side validation.
+
+---
+
+## License
+
+This project is currently under development. A license can be added when the project's distribution terms are decided.
